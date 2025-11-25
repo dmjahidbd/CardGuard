@@ -231,3 +231,47 @@ class AppLocker:
     def get_registered_cards(self) -> Dict:
         """Get all registered cards"""
         return self.registered_cards.copy()
+
+        return self.registered_cards.copy()
+    
+    # Additional helper methods for UI compatibility
+    
+    def remove_card(self) -> bool:
+        """Remove the first registered card (for UI compatibility)"""
+        if self.registered_cards:
+            first_card_id = list(self.registered_cards.keys())[0]
+            return self.unregister_card(first_card_id)
+        return False
+    
+    def verify_card(self, card_id: str) -> bool:
+        """Verify if card is registered"""
+        return self.is_card_registered(card_id)
+    
+    def has_pin(self) -> bool:
+        """Check if PIN is enabled"""
+        return self.config.get('pin_enabled', False)
+    
+    def lock_apps(self, app_names: List[str]) -> bool:
+        """Lock multiple applications by name"""
+        try:
+            for app_name in app_names:
+                # Find app path from name
+                apps = self.get_installed_apps()
+                for app in apps:
+                    if isinstance(app, dict) and app.get('name') == app_name:
+                        self.lock_app(app.get('path', ''), app_name)
+                        break
+            return True
+        except Exception as e:
+            print(f"Error locking apps: {e}")
+            return False
+    
+    def unlock_all_apps(self) -> bool:
+        """Unlock all locked applications"""
+        try:
+            self.locked_apps.clear()
+            self._save_locked_apps()
+            return True
+        except Exception as e:
+            print(f"Error unlocking apps: {e}")
+            return False
