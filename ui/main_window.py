@@ -215,8 +215,15 @@ class MainWindow(QMainWindow):
         self.app_list.clear()
         apps = self.app_locker.get_installed_apps()
         for app in apps:
-            self.app_list.addItem(app)
-        self.add_log(f"Loaded {len(apps)} applications")
+            # Extract app name with fallback to handle dict objects
+            try:
+                if isinstance(app, dict):
+                    app_name = app.get('name', str(app))
+                else:
+                    app_name = str(app)
+                self.app_list.addItem(app_name)
+            except Exception as e:
+                self.add_log(f"Error loading app: {e}")        self.add_log(f"Loaded {len(apps)} applications")
         
     def lock_applications(self):
         selected_items = self.app_list.selectedItems()
